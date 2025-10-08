@@ -1,0 +1,92 @@
+===========================================
+SİGORTA YÖNETİM SİSTEMİ - YEDEKLEME KILAVUZU
+===========================================
+
+TARİH: 2025-10-07
+PROJE KONUMU: /tmp/cc-agent/57836869/project
+
+===========================================
+1. PROJE DOSYALARI
+===========================================
+
+Tüm kaynak kodlar, konfigürasyonlar ve migrasyonlar bu klasördedir:
+/tmp/cc-agent/57836869/project
+
+İçerik:
+- src/ klasörü: Tüm React bileşenleri ve uygulama kodu
+- supabase/migrations/: Veritabanı yapısı ve migrasyonlar
+- public/: Statik dosyalar (resimler, vb.)
+- Konfigürasyon dosyaları: package.json, vite.config.ts, tailwind.config.js, vb.
+
+===========================================
+2. VERİTABANI YAPISI
+===========================================
+
+Veritabanındaki Tablolar:
+- profiles: Kullanıcı profilleri (agent/customer rolleri)
+- clients: Müşteri bilgileri
+- policies: Poliçe kayıtları
+- claims: Hasar kayıtları
+- insurance_companies: Sigorta şirketleri
+- notifications: Bildirim sistemi
+- announcements: Duyurular
+- customer_messages: Müşteri mesajları
+- policy_renewal_requests: Poliçe yenileme talepleri
+- client_documents: Müşteri belgeleri
+- dashboard_visibility_settings: Dashboard görünürlük ayarları
+- agency_info: Acente bilgileri
+- settings: Sistem ayarları
+
+===========================================
+3. VERİTABANI YEDEĞİ NASIL ALINIR?
+===========================================
+
+Supabase Dashboard'dan:
+1. https://supabase.com adresine git
+2. Projenize giriş yapın
+3. SQL Editor'e gidin
+4. Şu komutu çalıştırın:
+
+pg_dump --data-only --inserts
+
+Veya:
+Database > Backups bölümünden manuel yedek alabilirsiniz.
+
+===========================================
+4. STORAGE (DEPOLAMA) YEDEĞİ
+===========================================
+
+Storage Bucket'ları:
+- policy-documents: Poliçe PDF dosyaları
+- client-documents: Müşteri belgeleri
+- settings: Sistem ayar dosyaları
+
+Supabase Dashboard > Storage bölümünden dosyaları indirebilirsiniz.
+
+===========================================
+5. PROJE KURULUMU (Yeni Ortamda)
+===========================================
+
+1. Node.js ve npm yükleyin
+2. Proje klasörünü kopyalayın
+3. Terminal'de proje klasörüne gidin:
+   cd project
+
+4. Bağımlılıkları yükleyin:
+   npm install
+
+5. .env dosyasını düzenleyin (Supabase bilgilerinizi ekleyin)
+
+6. Projeyi çalıştırın:
+   npm run dev
+
+===========================================
+6. ÖNEMLİ NOTLAR
+===========================================
+
+- .env dosyasındaki Supabase anahtarlarını güvenli tutun
+- Veritabanı migrasyonları supabase/migrations/ klasöründedir
+- Tüm PDF ve dosya yedekleri için Storage'ı da yedekleyin
+- Bu dosyayı güvenli bir yerde saklayın
+
+===========================================
