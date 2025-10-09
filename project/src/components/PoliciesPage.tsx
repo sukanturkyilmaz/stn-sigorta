@@ -113,73 +113,77 @@ export default function PoliciesPage() {
       const client = clients.find(c => c.id === selectedClient);
       const clientPoliciesCount = filteredPolicies.length;
 
-      if (!confirm(`⚠️ UYARI: "${client?.name}" müşterisinin ${clientPoliciesCount} adet poliçesini silmek istediğinizden emin misiniz?\n\n(Müşteri kaydı SİLİNMEYECEK, sadece poliçeler silinecek)`)) {
+      if (!confirm(`⚠️ UYARI: "${client?.name}" müşterisinin ${clientPoliciesCount} adet poliçesini kalıcı olarak silmek istediğinizden emin misiniz?\n\n(Müşteri kaydı SİLİNMEYECEK, sadece poliçeler silinecek)`)) {
         return;
       }
 
-      if (!confirm(`✋ SON ONAY: ${client?.name} için ${clientPoliciesCount} poliçe kalıcı olarak silinecek.\n\nDevam edilsin mi?`)) {
+      if (!confirm(`✋ SON ONAY: ${client?.name} için ${clientPoliciesCount} poliçe kalıcı olarak VERİTABANINDAN silinecek.\n\nBu işlem GERİ ALINAMAZ! Devam edilsin mi?`)) {
         return;
       }
 
       try {
-        await supabase
+        const { error } = await supabase
           .from('policies')
-          .update({ is_deleted: true })
+          .delete()
           .eq('client_id', selectedClient)
           .eq('agent_id', userData.user.id);
+
+        if (error) throw error;
         alert(`✅ ${client?.name} müşterisinin ${clientPoliciesCount} poliçesi silindi (Müşteri kaydı korundu)`);
         fetchPolicies();
       } catch (error) {
         console.error('Silme hatası:', error);
-        alert('❌ Silme işlemi başarısız');
+        alert('❌ Silme işlemi başarısız: ' + (error as any).message);
       }
     } else {
       const totalPolicies = policies.length;
       const totalClients = clients.length;
 
-      if (!confirm(`🚨 TEHLİKELİ İŞLEM!\n\n${totalClients} müşteriye ait TOPLAM ${totalPolicies} POLİÇE silinecek.\n\n(Müşteri kayıtları SİLİNMEYECEK)\n\nBu işlem geri alınamaz! Emin misiniz?`)) {
+      if (!confirm(`🚨 TEHLİKELİ İŞLEM!\n\n${totalClients} müşteriye ait TOPLAM ${totalPolicies} POLİÇE kalıcı olarak silinecek.\n\n(Müşteri kayıtları SİLİNMEYECEK)\n\nBu işlem GERİ ALINAMAZ! Emin misiniz?`)) {
         return;
       }
 
-      if (!confirm(`✋ SON UYARI!\n\nTüm poliçeler (${totalPolicies} adet) kalıcı olarak silinecek.\n\nDevam edilsin mi?`)) {
+      if (!confirm(`✋ SON UYARI!\n\nTüm poliçeler (${totalPolicies} adet) kalıcı olarak VERİTABANINDAN silinecek.\n\nDevam edilsin mi?`)) {
         return;
       }
 
-      if (!confirm(`⛔ LÜTFEN ONAYLAYIN:\n\n"${totalPolicies} poliçe silinecek"\n\nBu mesajı okuyup anladınız mı?`)) {
+      if (!confirm(`⛔ LÜTFEN ONAYLAYIN:\n\n"${totalPolicies} poliçe kalıcı olarak silinecek"\n\nBu mesajı okuyup anladınız mı?`)) {
         return;
       }
 
       try {
-        await supabase
+        const { error } = await supabase
           .from('policies')
-          .update({ is_deleted: true })
+          .delete()
           .eq('agent_id', userData.user.id);
+
+        if (error) throw error;
         alert(`✅ Toplam ${totalPolicies} poliçe silindi. Müşteri kayıtları korundu.`);
         fetchPolicies();
       } catch (error) {
         console.error('Silme hatası:', error);
-        alert('❌ Silme işlemi başarısız');
+        alert('❌ Silme işlemi başarısız: ' + (error as any).message);
       }
     }
   };
 
   const handleDeletePolicy = async (policyId: string, policyNumber: string) => {
-    if (!confirm(`${policyNumber} numaralı poliçeyi silmek istediğinizden emin misiniz?`)) {
+    if (!confirm(`${policyNumber} numaralı poliçeyi kalıcı olarak silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!`)) {
       return;
     }
 
     try {
       const { error } = await supabase
         .from('policies')
-        .update({ is_deleted: true })
+        .delete()
         .eq('id', policyId);
 
       if (error) throw error;
 
-      alert('Poliçe silindi');
+      alert('✅ Poliçe başarıyla silindi');
       fetchPolicies();
     } catch (error: any) {
-      alert('Poliçe silinemedi: ' + error.message);
+      alert('❌ Poliçe silinemedi: ' + error.message);
     }
   };
 

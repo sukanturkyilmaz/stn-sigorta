@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, Menu, X, FileText, AlertCircle, BarChart3, Settings, Users, Bell, Building2, MessageSquare, RefreshCw, FolderOpen } from 'lucide-react';
+import { LogOut, Menu, X, FileText, AlertCircle, BarChart3, Settings, Users, Bell, Building2, MessageSquare, RefreshCw, FolderOpen, Download } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import NotificationDropdown from './NotificationDropdown';
 
@@ -150,6 +150,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
       { id: 'documents', label: 'Dosya Yönetimi', icon: FolderOpen, badge: newDocumentsCount },
       { id: 'announcements', label: 'Duyurular', icon: Bell },
       { id: 'agency-info', label: 'Acente Bilgileri', icon: Building2 },
+      { id: 'backup', label: 'Backup İndir', icon: Download },
       { id: 'settings', label: 'Ayarlar', icon: Settings }
     );
   }

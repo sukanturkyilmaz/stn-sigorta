@@ -14,6 +14,7 @@ import AgencyInfoSettings from './components/AgencyInfoSettings';
 import CustomerMessagesPage from './components/CustomerMessagesPage';
 import PolicyRenewalsPage from './components/PolicyRenewalsPage';
 import DocumentsManagementPage from './components/DocumentsManagementPage';
+import BackupDownloadPage from './components/BackupDownloadPage';
 
 function AppContent() {
   const { user, loading, isClient } = useAuth();
@@ -71,6 +72,8 @@ function AppContent() {
         return <PolicyRenewalsPage />;
       case 'documents':
         return <DocumentsManagementPage />;
+      case 'backup':
+        return <BackupDownloadPage />;
       default:
         return <Dashboard />;
     }

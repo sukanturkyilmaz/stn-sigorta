@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { FileText, AlertCircle, TrendingUp, DollarSign, Percent, Calendar, Users, MessageSquare, Bell, RefreshCw, FolderOpen } from 'lucide-react';
+import { FileText, AlertCircle, TrendingUp, DollarSign, Percent, Calendar, Users, MessageSquare, Bell, RefreshCw, FolderOpen, Download } from 'lucide-react';
 import MetricDetailModal from './MetricDetailModal';
 
 interface Stats {
@@ -68,11 +68,13 @@ export default function Dashboard() {
 
       let policiesQuery = supabase
         .from('policies')
-        .select('premium_amount, start_date, end_date', { count: 'exact' })
+        .select('policy_number, premium_amount, start_date, end_date', { count: 'exact' })
         .is('archived_at', null)
         .eq('is_deleted', false);
 
-      let claimsQuery = supabase.from('claims').select('payment_amount', { count: 'exact' });
+      let claimsQuery = supabase
+        .from('claims')
+        .select('payment_amount, policy:policies(policy_number)', { count: 'exact' });
 
       if (!isAdmin && profile) {
         policiesQuery = policiesQuery.eq('agent_id', profile.id);
@@ -85,8 +87,22 @@ export default function Dashboard() {
       const totalPremium = policies?.reduce((sum, p) => sum + Number(p.premium_amount), 0) || 0;
       const totalClaimAmount = claims?.reduce((sum, c) => sum + Number(c.payment_amount), 0) || 0;
 
+      const policyNumbers = new Set(policies?.map(p => p.policy_number) || []);
+
+      const matchedClaims = claims?.filter(claim =>
+        claim.policy?.policy_number && policyNumbers.has(claim.policy.policy_number)
+      ) || [];
+
+      const matchedClaimAmount = matchedClaims.reduce((sum, c) => sum + Number(c.payment_amount), 0);
+
+      const matchedPolicyNumbers = new Set(
+        matchedClaims.map(c => c.policy?.policy_number).filter(Boolean)
+      );
+
+      const matchedPolicies = policies?.filter(p => matchedPolicyNumbers.has(p.policy_number)) || [];
+
       const today = new Date();
-      const earnedPremium = policies?.reduce((sum, policy) => {
+      const earnedPremium = matchedPolicies.reduce((sum, policy) => {
         const startDate = new Date(policy.start_date);
         const endDate = new Date(policy.end_date);
         const totalDays = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
@@ -98,14 +114,14 @@ export default function Dashboard() {
 
         const earnedRatio = daysElapsed / totalDays;
         return sum + (Number(policy.premium_amount) * earnedRatio);
-      }, 0) || 0;
+      }, 0);
 
       setStats({
         totalPolicies: policiesCount || 0,
         totalClaims: claimsCount || 0,
         totalPremium,
         earnedPremium,
-        totalClaimAmount,
+        totalClaimAmount: matchedClaimAmount,
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -290,13 +306,33 @@ export default function Dashboard() {
     );
   }
 
+  const handleDownloadBackup = () => {
+    const link = document.createElement('a');
+    link.href = '/deploy-latest.tar.gz';
+    link.download = 'stnsigorta-deployment.tar.gz';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900">Ana Sayfa</h2>
-        <p className="text-gray-600 mt-2">
-          Hoş geldiniz, {profile?.full_name}
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">Ana Sayfa</h2>
+          <p className="text-gray-600 mt-2">
+            Hoş geldiniz, {profile?.full_name}
+          </p>
+        </div>
+        {isAdmin && (
+          <button
+            onClick={handleDownloadBackup}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            <Download className="w-5 h-5" />
+            Deployment Dosyası İndir
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">

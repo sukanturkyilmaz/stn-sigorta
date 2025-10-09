@@ -199,7 +199,7 @@ export default function ClaimsPage() {
   };
 
   const handleDeleteClaim = async (claimId: string) => {
-    if (!confirm('Bu hasarı silmek istediğinize emin misiniz?')) return;
+    if (!confirm('Bu hasarı kalıcı olarak silmek istediğinize emin misiniz?\n\nBu işlem geri alınamaz!')) return;
 
     try {
       const { error } = await supabase
@@ -208,10 +208,11 @@ export default function ClaimsPage() {
         .eq('id', claimId);
 
       if (error) throw error;
+      alert('✅ Hasar başarıyla silindi');
       await fetchClaims();
     } catch (err) {
       console.error('Hasar silinirken hata:', err);
-      alert('Hasar silinirken hata oluştu');
+      alert('❌ Hasar silinirken hata oluştu: ' + (err as any).message);
     }
   };
 
@@ -255,14 +256,14 @@ export default function ClaimsPage() {
 
       if (error) throw error;
 
-      alert(`${clientClaims.length} adet hasar başarıyla silindi`);
+      alert(`✅ ${clientClaims.length} adet hasar başarıyla silindi`);
       setShowBulkDeleteConfirm(false);
       setDeleteConfirmStep(1);
       setSelectedClientForDelete('');
       await fetchClaims();
     } catch (err) {
       console.error('Hasarlar silinirken hata:', err);
-      alert('Hasarlar silinirken hata oluştu');
+      alert('❌ Hasarlar silinirken hata oluştu: ' + (err as any).message);
     }
   };
 
